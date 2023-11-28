@@ -1,37 +1,16 @@
-import Prelude hiding (Functor, Applicative, Monad)
+findMaxDistance :: (Ord a, Floating a) => [(a, a)] -> a
+findMaxDistance [] = error "Empty list"
+findMaxDistance pairs = maximum $ map (\x -> findMaxForPoint x pairs 0) pairs
+  where
+    findMaxForPoint _ [] accum   = accum
+    findMaxForPoint point (x:xs) accum = findMaxForPoint point xs (max (findDistance point x) accum)
 
-class Functor f where
-  fmap :: (a -> b) -> f a -> f b
+    findDistance :: Floating a => (a, a) -> (a, a) -> a
+    findDistance (x1, y1) (x2, y2) = sqrt ((x2 - x1)**2 + (y2 - y1)**2)
 
--- List [a] is a Functor.
-instance Functor [] where
-  fmap = map
-
-
-class (Functor f) => Applicative f where
-  pure  :: a -> f a
-  (<*>) :: f (a -> b) -> f a -> f b
-
--- List [a] is an Applicative Functor.
-instance Applicative [] where
-  pure x    = [x]
-  fs <*> xs = [f x | f <- fs, x <- xs]
-
-
-class (Applicative m) => Monad m where
-  return :: a -> m a
-  (>>=)  :: m a -> (a -> m b) -> m b
-
--- List [a] is a monad!
-instance Monad [] where
-  return x = [x]
-  -- concatMap ::  (a -> [b]) -> [a] -> [b]
-  (>>=) xs f = concatMap f xs
-  -- or (>>=) xs f = foldl (++) [] (map f x)
 
 
 main = do
-  let myList = ["apple", "banana", "orange"]
-      modifiedList = myList Main.>>= (\x -> [x ++ "s"])
-  print modifiedList
-  -- it works!
+  print (findMaxDistance [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)])
+  print (findMaxDistance [(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])
+  print (findMaxDistance [(1.0, 1.0), (2.0, 2.0), (3.0, 3.0), (4.0, 4.0)])
